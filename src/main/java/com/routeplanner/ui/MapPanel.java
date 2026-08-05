@@ -42,10 +42,10 @@ public class MapPanel extends JPanel {
             System.err.println("Could not load world map image.");
         }
 
-        // Initialize starting zoom to roughly focus on India
-        scale = 3.5;
-        translateX = -2000;
-        translateY = -600;
+        // Initialize starting zoom to show the full map
+        scale = 1.0;
+        translateX = 0;
+        translateY = 0;
 
         MouseAdapter ma = new MouseAdapter() {
             @Override
