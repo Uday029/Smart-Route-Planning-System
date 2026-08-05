@@ -48,7 +48,7 @@ public class MapPanel extends JPanel {
             List<Graph.Edge> edges = graph.getAdjacencyList().get(city.getCityId());
             if (edges != null) {
                 for (Graph.Edge edge : edges) {
-                    City target = getCityById(edge.target);
+                    City target = getCityById(edge.destinationCityId);
                     if (target != null) {
                         Point p2 = getPoint(target, width, height);
                         g2.drawLine(p1.x, p1.y, p2.x, p2.y);
@@ -58,13 +58,13 @@ public class MapPanel extends JPanel {
         }
 
         // 2. Draw highlighted route if it exists
-        if (currentRoute != null && currentRoute.path != null && currentRoute.path.size() > 1) {
+        if (currentRoute != null && currentRoute.getPath() != null && currentRoute.getPath().size() > 1) {
             g2.setColor(new Color(220, 53, 69)); // Bootstrap Danger Red
             g2.setStroke(new BasicStroke(4));
             
-            for (int i = 0; i < currentRoute.path.size() - 1; i++) {
-                City c1 = getCityById(currentRoute.path.get(i));
-                City c2 = getCityById(currentRoute.path.get(i+1));
+            for (int i = 0; i < currentRoute.getPath().size() - 1; i++) {
+                City c1 = currentRoute.getPath().get(i);
+                City c2 = currentRoute.getPath().get(i+1);
                 if (c1 != null && c2 != null) {
                     Point p1 = getPoint(c1, width, height);
                     Point p2 = getPoint(c2, width, height);
@@ -79,8 +79,8 @@ public class MapPanel extends JPanel {
             
             // Check if city is in the path
             boolean inPath = false;
-            if (currentRoute != null && currentRoute.path != null) {
-                inPath = currentRoute.path.contains(city.getCityId());
+            if (currentRoute != null && currentRoute.getPath() != null) {
+                inPath = currentRoute.getPath().stream().anyMatch(c -> c.getCityId() == city.getCityId());
             }
 
             if (inPath) {
