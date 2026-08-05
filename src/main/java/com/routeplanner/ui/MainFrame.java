@@ -22,6 +22,7 @@ public class MainFrame extends JFrame {
     private JCheckBox trafficCheck;
     private JCheckBox weatherCheck;
     private JTextArea resultArea;
+    private MapPanel mapPanel;
 
     // Nearby Tab
     private JComboBox<City> currentLocCombo;
@@ -80,7 +81,15 @@ public class MainFrame extends JFrame {
         resultArea.setEditable(false);
         resultArea.setFont(new Font("Monospaced", Font.PLAIN, 15));
         resultArea.setMargin(new Insets(10, 10, 10, 10));
-        panel.add(new JScrollPane(resultArea), BorderLayout.CENTER);
+        
+        mapPanel = new MapPanel(graph);
+        mapPanel.setPreferredSize(new Dimension(400, 400));
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
+                new JScrollPane(resultArea), mapPanel);
+        splitPane.setDividerLocation(350);
+        
+        panel.add(splitPane, BorderLayout.CENTER);
 
         findBtn.addActionListener(e -> calculateRoute());
         
@@ -172,9 +181,10 @@ public class MainFrame extends JFrame {
                 int id = graph.getCities().size() + 1;
                 String name = cityNameField.getText();
                 String state = cityStateField.getText();
-                // Assigning default 0.0 for Lat/Lon as requested to remove from input
-                double lat = 0.0;
-                double lon = 0.0;
+                // Assign random geographic coordinates within India's approximate bounds
+                // Lat: 10 to 30, Lon: 70 to 88
+                double lat = 10.0 + (Math.random() * 20.0);
+                double lon = 70.0 + (Math.random() * 18.0);
                 
                 City newCity = new City(id, name, state, lat, lon);
                 graph.addCity(newCity);
@@ -369,8 +379,10 @@ public class MainFrame extends JFrame {
             
             String currentText = resultArea.getText();
             resultArea.setText((currentText.contains("Live Traffic") ? currentText : "") + sb.toString());
+            mapPanel.setRoute(result);
         } else {
             resultArea.setText("No route found between " + src.getCityName() + " and " + dest.getCityName() + ".\n(Roads might be closed due to severe weather!)");
+            mapPanel.setRoute(null);
         }
     }
 }
