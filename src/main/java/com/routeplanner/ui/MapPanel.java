@@ -4,23 +4,33 @@ import com.routeplanner.dsa.Graph;
 import com.routeplanner.dsa.RouteResult;
 import com.routeplanner.model.City;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class MapPanel extends JPanel {
     private Graph graph;
     private RouteResult currentRoute;
+    private BufferedImage bgImage;
     
-    // Approximate bounding box for India (for scaling to panel size)
-    private final double minLat = 8.0;
-    private final double maxLat = 32.0;
-    private final double minLon = 68.0;
-    private final double maxLon = 92.0;
+    // Global bounding box for Equirectangular Projection
+    private final double minLat = -90.0;
+    private final double maxLat = 90.0;
+    private final double minLon = -180.0;
+    private final double maxLon = 180.0;
 
     public MapPanel(Graph graph) {
         this.graph = graph;
-        setBackground(new Color(245, 245, 250)); // Light map background
+        setBackground(new Color(28, 35, 49)); // Dark ocean backup color
+        try {
+            bgImage = ImageIO.read(new File("src/main/resources/world_map.jpg"));
+        } catch (IOException e) {
+            System.err.println("Could not load world map image.");
+        }
     }
 
     public void setRoute(RouteResult route) {
@@ -36,6 +46,10 @@ public class MapPanel extends JPanel {
 
         int width = getWidth();
         int height = getHeight();
+
+        if (bgImage != null) {
+            g2.drawImage(bgImage, 0, 0, width, height, null);
+        }
 
         if (graph == null) return;
 
@@ -107,10 +121,6 @@ public class MapPanel extends JPanel {
         // Map to X, Y
         int x = (int) (((lon - minLon) / (maxLon - minLon)) * width);
         int y = height - (int) (((lat - minLat) / (maxLat - minLat)) * height);
-
-        // Add 10% padding margin so nodes don't hug the edge
-        x = (int) (x * 0.8) + (int)(width * 0.1);
-        y = (int) (y * 0.8) + (int)(height * 0.1);
 
         return new Point(x, y);
     }
