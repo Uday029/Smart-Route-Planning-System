@@ -83,10 +83,27 @@ public class MainFrame extends JFrame {
         resultArea.setMargin(new Insets(10, 10, 10, 10));
         
         mapPanel = new MapPanel(graph);
-        mapPanel.setPreferredSize(new Dimension(400, 400));
+        
+        JPanel mapContainer = new JPanel(new BorderLayout());
+        mapContainer.add(mapPanel, BorderLayout.CENTER);
+        mapContainer.setPreferredSize(new Dimension(400, 400));
+
+        JToolBar zoomBar = new JToolBar();
+        zoomBar.setFloatable(false);
+        JButton zoomInBtn = new JButton("+");
+        zoomInBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
+        JButton zoomOutBtn = new JButton("-");
+        zoomOutBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
+        
+        zoomInBtn.addActionListener(e -> mapPanel.zoomIn());
+        zoomOutBtn.addActionListener(e -> mapPanel.zoomOut());
+        
+        zoomBar.add(zoomOutBtn);
+        zoomBar.add(zoomInBtn);
+        mapContainer.add(zoomBar, BorderLayout.NORTH);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
-                new JScrollPane(resultArea), mapPanel);
+                new JScrollPane(resultArea), mapContainer);
         splitPane.setDividerLocation(350);
         
         panel.add(splitPane, BorderLayout.CENTER);

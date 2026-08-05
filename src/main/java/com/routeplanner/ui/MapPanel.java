@@ -7,6 +7,9 @@ import com.routeplanner.model.City;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +26,13 @@ public class MapPanel extends JPanel {
     private final double minLon = -180.0;
     private final double maxLon = 180.0;
 
+    // Zoom and Pan variables
+    private double scale = 1.0;
+    private double translateX = 0.0;
+    private double translateY = 0.0;
+    private Point dragStartScreen;
+    private Point dragStartOffset;
+
     public MapPanel(Graph graph) {
         this.graph = graph;
         setBackground(new Color(28, 35, 49)); // Dark ocean backup color
@@ -31,6 +41,72 @@ public class MapPanel extends JPanel {
         } catch (IOException e) {
             System.err.println("Could not load world map image.");
         }
+
+        // Initialize starting zoom to roughly focus on India
+        scale = 3.5;
+        translateX = -2000;
+        translateY = -600;
+
+        MouseAdapter ma = new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                dragStartScreen = e.getPoint();
+                dragStartOffset = new Point((int)translateX, (int)translateY);
+            }
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (dragStartScreen != null) {
+                    double dx = e.getPoint().x - dragStartScreen.x;
+                    double dy = e.getPoint().y - dragStartScreen.y;
+                    translateX = dragStartOffset.x + dx;
+                    translateY = dragStartOffset.y + dy;
+                    repaint();
+                }
+            }
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                double oldScale = scale;
+                if (e.getWheelRotation() < 0) {
+                    scale *= 1.1; // zoom in
+                } else {
+                    scale /= 1.1; // zoom out
+                }
+                scale = Math.max(1.0, Math.min(scale, 20.0));
+                
+                // Math for zoom-to-cursor
+                double x = e.getX();
+                double y = e.getY();
+                translateX = x - (x - translateX) * (scale / oldScale);
+                translateY = y - (y - translateY) * (scale / oldScale);
+                
+                repaint();
+            }
+        };
+        addMouseListener(ma);
+        addMouseMotionListener(ma);
+        addMouseWheelListener(ma);
+    }
+
+    public void zoomIn() {
+        double oldScale = scale;
+        scale *= 1.2;
+        scale = Math.min(scale, 20.0);
+        zoomCenter(oldScale);
+    }
+
+    public void zoomOut() {
+        double oldScale = scale;
+        scale /= 1.2;
+        scale = Math.max(1.0, scale);
+        zoomCenter(oldScale);
+    }
+
+    private void zoomCenter(double oldScale) {
+        double x = getWidth() / 2.0;
+        double y = getHeight() / 2.0;
+        translateX = x - (x - translateX) * (scale / oldScale);
+        translateY = y - (y - translateY) * (scale / oldScale);
+        repaint();
     }
 
     public void setRoute(RouteResult route) {
@@ -47,13 +123,16 @@ public class MapPanel extends JPanel {
         int width = getWidth();
         int height = getHeight();
 
+        // 1. Draw scaled background map
         if (bgImage != null) {
-            g2.drawImage(bgImage, 0, 0, width, height, null);
+            int imgW = (int)(width * scale);
+            int imgH = (int)(height * scale);
+            g2.drawImage(bgImage, (int)translateX, (int)translateY, imgW, imgH, null);
         }
 
         if (graph == null) return;
 
-        // 1. Draw all roads (edges) in light gray
+        // 2. Draw all roads (edges) in light gray
         g2.setColor(new Color(200, 200, 200));
         g2.setStroke(new BasicStroke(1));
         
@@ -71,7 +150,7 @@ public class MapPanel extends JPanel {
             }
         }
 
-        // 2. Draw highlighted route if it exists
+        // 3. Draw highlighted route if it exists
         if (currentRoute != null && currentRoute.getPath() != null && currentRoute.getPath().size() > 1) {
             g2.setColor(new Color(220, 53, 69)); // Bootstrap Danger Red
             g2.setStroke(new BasicStroke(4));
@@ -87,7 +166,7 @@ public class MapPanel extends JPanel {
             }
         }
 
-        // 3. Draw all cities as dots
+        // 4. Draw all cities as dots
         for (City city : graph.getCities()) {
             Point p = getPoint(city, width, height);
             
@@ -118,11 +197,15 @@ public class MapPanel extends JPanel {
         double lat = city.getLatitude();
         double lon = city.getLongitude();
 
-        // Map to X, Y
-        int x = (int) (((lon - minLon) / (maxLon - minLon)) * width);
-        int y = height - (int) (((lat - minLat) / (maxLat - minLat)) * height);
+        // Map to raw global coordinates
+        double rawX = (((lon - minLon) / (maxLon - minLon)) * width);
+        double rawY = height - (((lat - minLat) / (maxLat - minLat)) * height);
 
-        return new Point(x, y);
+        // Apply dynamic scale and pan
+        int finalX = (int)(rawX * scale + translateX);
+        int finalY = (int)(rawY * scale + translateY);
+
+        return new Point(finalX, finalY);
     }
 
     private City getCityById(int id) {
