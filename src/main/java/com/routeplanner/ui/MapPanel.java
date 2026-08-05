@@ -18,13 +18,12 @@ import java.util.List;
 public class MapPanel extends JPanel {
     private Graph graph;
     private RouteResult currentRoute;
-    private BufferedImage bgImage;
     
-    // Global bounding box for Equirectangular Projection
-    private final double minLat = -90.0;
-    private final double maxLat = 90.0;
-    private final double minLon = -180.0;
-    private final double maxLon = 180.0;
+    // Bounding box for India
+    private final double minLat = 8.0;
+    private final double maxLat = 36.0;
+    private final double minLon = 68.0;
+    private final double maxLon = 98.0;
 
     // Zoom and Pan variables
     private double scale = 1.0;
@@ -35,12 +34,7 @@ public class MapPanel extends JPanel {
 
     public MapPanel(Graph graph) {
         this.graph = graph;
-        setBackground(new Color(28, 35, 49)); // Dark ocean backup color
-        try {
-            bgImage = ImageIO.read(new File("src/main/resources/world_map.jpg"));
-        } catch (IOException e) {
-            System.err.println("Could not load world map image.");
-        }
+        setBackground(new Color(245, 245, 250)); // Light map background
 
         // Initialize starting zoom to show the full map
         scale = 1.0;
@@ -122,13 +116,6 @@ public class MapPanel extends JPanel {
 
         int width = getWidth();
         int height = getHeight();
-
-        // 1. Draw scaled background map
-        if (bgImage != null) {
-            int imgW = (int)(width * scale);
-            int imgH = (int)(height * scale);
-            g2.drawImage(bgImage, (int)translateX, (int)translateY, imgW, imgH, null);
-        }
 
         if (graph == null) return;
 
