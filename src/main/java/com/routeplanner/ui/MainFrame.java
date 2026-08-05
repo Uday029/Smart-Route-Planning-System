@@ -124,15 +124,13 @@ public class MainFrame extends JFrame {
         JPanel topPanel = new JPanel(new GridLayout(1, 2, 10, 10));
         
         // Add City Panel
-        JPanel cityPanel = new JPanel(new GridLayout(4, 2, 5, 5));
+        JPanel cityPanel = new JPanel(new GridLayout(3, 2, 5, 5));
         cityPanel.setBorder(BorderFactory.createTitledBorder("Add New City"));
         
-        JTextField cityIdField = new JTextField();
         JTextField cityNameField = new JTextField();
         JTextField cityStateField = new JTextField();
         JButton addCityBtn = new JButton("Add City");
         
-        cityPanel.add(new JLabel("City ID:")); cityPanel.add(cityIdField);
         cityPanel.add(new JLabel("City Name:")); cityPanel.add(cityNameField);
         cityPanel.add(new JLabel("State:")); cityPanel.add(cityStateField);
         cityPanel.add(new JLabel("")); cityPanel.add(addCityBtn);
@@ -170,7 +168,8 @@ public class MainFrame extends JFrame {
         // Actions
         addCityBtn.addActionListener(e -> {
             try {
-                int id = Integer.parseInt(cityIdField.getText());
+                // Auto-generate City ID
+                int id = graph.getCities().size() + 1;
                 String name = cityNameField.getText();
                 String state = cityStateField.getText();
                 // Assigning default 0.0 for Lat/Lon as requested to remove from input
@@ -186,9 +185,9 @@ public class MainFrame extends JFrame {
                 srcCityCombo.addItem(newCity);
                 destCityCombo.addItem(newCity);
                 
-                adminLogArea.append("Success: Added City - " + name + "\n");
+                adminLogArea.append("Success: Added City - " + name + " (Auto-assigned ID: " + id + ")\n");
                 
-                cityIdField.setText(""); cityNameField.setText(""); cityStateField.setText("");
+                cityNameField.setText(""); cityStateField.setText("");
             } catch (Exception ex) {
                 adminLogArea.append("Error adding city: Please check the inputs.\n");
             }
