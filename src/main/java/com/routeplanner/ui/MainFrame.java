@@ -124,21 +124,17 @@ public class MainFrame extends JFrame {
         JPanel topPanel = new JPanel(new GridLayout(1, 2, 10, 10));
         
         // Add City Panel
-        JPanel cityPanel = new JPanel(new GridLayout(6, 2, 5, 5));
+        JPanel cityPanel = new JPanel(new GridLayout(4, 2, 5, 5));
         cityPanel.setBorder(BorderFactory.createTitledBorder("Add New City"));
         
         JTextField cityIdField = new JTextField();
         JTextField cityNameField = new JTextField();
         JTextField cityStateField = new JTextField();
-        JTextField cityLatField = new JTextField();
-        JTextField cityLonField = new JTextField();
         JButton addCityBtn = new JButton("Add City");
         
         cityPanel.add(new JLabel("City ID:")); cityPanel.add(cityIdField);
         cityPanel.add(new JLabel("City Name:")); cityPanel.add(cityNameField);
         cityPanel.add(new JLabel("State:")); cityPanel.add(cityStateField);
-        cityPanel.add(new JLabel("Latitude:")); cityPanel.add(cityLatField);
-        cityPanel.add(new JLabel("Longitude:")); cityPanel.add(cityLonField);
         cityPanel.add(new JLabel("")); cityPanel.add(addCityBtn);
         
         // Add Road Panel
@@ -177,8 +173,9 @@ public class MainFrame extends JFrame {
                 int id = Integer.parseInt(cityIdField.getText());
                 String name = cityNameField.getText();
                 String state = cityStateField.getText();
-                double lat = Double.parseDouble(cityLatField.getText());
-                double lon = Double.parseDouble(cityLonField.getText());
+                // Assigning default 0.0 for Lat/Lon as requested to remove from input
+                double lat = 0.0;
+                double lon = 0.0;
                 
                 City newCity = new City(id, name, state, lat, lon);
                 graph.addCity(newCity);
@@ -192,7 +189,6 @@ public class MainFrame extends JFrame {
                 adminLogArea.append("Success: Added City - " + name + "\n");
                 
                 cityIdField.setText(""); cityNameField.setText(""); cityStateField.setText("");
-                cityLatField.setText(""); cityLonField.setText("");
             } catch (Exception ex) {
                 adminLogArea.append("Error adding city: Please check the inputs.\n");
             }
