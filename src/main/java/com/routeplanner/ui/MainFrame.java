@@ -42,6 +42,7 @@ public class MainFrame extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Route Planner", createRoutePanel());
         tabbedPane.addTab("Nearby & Emergency", createNearbyPanel());
+        tabbedPane.addTab("Admin Panel", createAdminPanel());
         
         add(tabbedPane, BorderLayout.CENTER);
     }
@@ -113,6 +114,112 @@ public class MainFrame extends JFrame {
         panel.add(new JScrollPane(nearbyResultArea), BorderLayout.CENTER);
         
         findPlacesBtn.addActionListener(e -> findNearbyPlaces());
+        
+        return panel;
+    }
+
+    private JPanel createAdminPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        
+        JPanel topPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        
+        // Add City Panel
+        JPanel cityPanel = new JPanel(new GridLayout(6, 2, 5, 5));
+        cityPanel.setBorder(BorderFactory.createTitledBorder("Add New City"));
+        
+        JTextField cityIdField = new JTextField();
+        JTextField cityNameField = new JTextField();
+        JTextField cityStateField = new JTextField();
+        JTextField cityLatField = new JTextField();
+        JTextField cityLonField = new JTextField();
+        JButton addCityBtn = new JButton("Add City");
+        
+        cityPanel.add(new JLabel("City ID:")); cityPanel.add(cityIdField);
+        cityPanel.add(new JLabel("City Name:")); cityPanel.add(cityNameField);
+        cityPanel.add(new JLabel("State:")); cityPanel.add(cityStateField);
+        cityPanel.add(new JLabel("Latitude:")); cityPanel.add(cityLatField);
+        cityPanel.add(new JLabel("Longitude:")); cityPanel.add(cityLonField);
+        cityPanel.add(new JLabel("")); cityPanel.add(addCityBtn);
+        
+        // Add Road Panel
+        JPanel roadPanel = new JPanel(new GridLayout(8, 2, 5, 5));
+        roadPanel.setBorder(BorderFactory.createTitledBorder("Add New Road"));
+        
+        JTextField roadIdField = new JTextField();
+        JComboBox<City> srcCityCombo = new JComboBox<>(graph.getCities().toArray(new City[0]));
+        JComboBox<City> destCityCombo = new JComboBox<>(graph.getCities().toArray(new City[0]));
+        JTextField distanceField = new JTextField();
+        JTextField speedLimitField = new JTextField();
+        JTextField roadTypeField = new JTextField("Highway");
+        JCheckBox isOneWayCheck = new JCheckBox("Is One Way?");
+        JButton addRoadBtn = new JButton("Add Road");
+        
+        roadPanel.add(new JLabel("Road ID:")); roadPanel.add(roadIdField);
+        roadPanel.add(new JLabel("Source City:")); roadPanel.add(srcCityCombo);
+        roadPanel.add(new JLabel("Destination City:")); roadPanel.add(destCityCombo);
+        roadPanel.add(new JLabel("Distance (km):")); roadPanel.add(distanceField);
+        roadPanel.add(new JLabel("Speed Limit:")); roadPanel.add(speedLimitField);
+        roadPanel.add(new JLabel("Road Type:")); roadPanel.add(roadTypeField);
+        roadPanel.add(new JLabel("")); roadPanel.add(isOneWayCheck);
+        roadPanel.add(new JLabel("")); roadPanel.add(addRoadBtn);
+        
+        topPanel.add(cityPanel);
+        topPanel.add(roadPanel);
+        panel.add(topPanel, BorderLayout.NORTH);
+        
+        JTextArea adminLogArea = new JTextArea();
+        adminLogArea.setEditable(false);
+        panel.add(new JScrollPane(adminLogArea), BorderLayout.CENTER);
+        
+        // Actions
+        addCityBtn.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(cityIdField.getText());
+                String name = cityNameField.getText();
+                String state = cityStateField.getText();
+                double lat = Double.parseDouble(cityLatField.getText());
+                double lon = Double.parseDouble(cityLonField.getText());
+                
+                City newCity = new City(id, name, state, lat, lon);
+                graph.addCity(newCity);
+                
+                sourceCombo.addItem(newCity);
+                destCombo.addItem(newCity);
+                currentLocCombo.addItem(newCity);
+                srcCityCombo.addItem(newCity);
+                destCityCombo.addItem(newCity);
+                
+                adminLogArea.append("Success: Added City - " + name + "\n");
+                
+                cityIdField.setText(""); cityNameField.setText(""); cityStateField.setText("");
+                cityLatField.setText(""); cityLonField.setText("");
+            } catch (Exception ex) {
+                adminLogArea.append("Error adding city: Please check the inputs.\n");
+            }
+        });
+        
+        addRoadBtn.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(roadIdField.getText());
+                City src = (City) srcCityCombo.getSelectedItem();
+                City dest = (City) destCityCombo.getSelectedItem();
+                double dist = Double.parseDouble(distanceField.getText());
+                int speed = Integer.parseInt(speedLimitField.getText());
+                String type = roadTypeField.getText();
+                boolean isOneWay = isOneWayCheck.isSelected();
+                
+                if(src == null || dest == null) return;
+                
+                Road newRoad = new Road(id, src.getCityId(), dest.getCityId(), dist, speed, type, isOneWay);
+                graph.addRoad(newRoad);
+                
+                adminLogArea.append("Success: Added Road from " + src.getCityName() + " to " + dest.getCityName() + "\n");
+                
+                roadIdField.setText(""); distanceField.setText(""); speedLimitField.setText("");
+            } catch (Exception ex) {
+                adminLogArea.append("Error adding road: Please check the inputs.\n");
+            }
+        });
         
         return panel;
     }
