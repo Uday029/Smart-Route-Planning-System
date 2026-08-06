@@ -2,6 +2,7 @@ package com.routeplanner.ui;
 
 import com.routeplanner.dsa.Graph;
 import com.routeplanner.dsa.RouteResult;
+import com.routeplanner.dsa.NearbyPlacesFinder;
 import com.routeplanner.model.City;
 
 import javax.imageio.ImageIO;
@@ -18,6 +19,8 @@ import java.util.List;
 public class MapPanel extends JPanel {
     private Graph graph;
     private RouteResult currentRoute;
+    private List<NearbyPlacesFinder.PlaceDistance> highlightedPlaces;
+    private City centerCity;
     
     // Bounding box for India
     private final double minLat = 8.0;
@@ -105,6 +108,15 @@ public class MapPanel extends JPanel {
 
     public void setRoute(RouteResult route) {
         this.currentRoute = route;
+        this.highlightedPlaces = null;
+        this.centerCity = null;
+        repaint();
+    }
+
+    public void setHighlightedPlaces(List<NearbyPlacesFinder.PlaceDistance> places, City center) {
+        this.highlightedPlaces = places;
+        this.centerCity = center;
+        this.currentRoute = null;
         repaint();
     }
 
@@ -163,9 +175,16 @@ public class MapPanel extends JPanel {
                 inPath = currentRoute.getPath().stream().anyMatch(c -> c.getCityId() == city.getCityId());
             }
 
+            boolean isCenter = (centerCity != null && centerCity.getCityId() == city.getCityId());
+
             if (inPath) {
                 g2.setColor(new Color(220, 53, 69)); // Red dot for path
                 g2.fillOval(p.x - 6, p.y - 6, 12, 12);
+                g2.setColor(Color.BLACK);
+                g2.setFont(new Font("SansSerif", Font.BOLD, 12));
+            } else if (isCenter) {
+                g2.setColor(new Color(255, 140, 0)); // Dark Orange for center
+                g2.fillOval(p.x - 7, p.y - 7, 14, 14);
                 g2.setColor(Color.BLACK);
                 g2.setFont(new Font("SansSerif", Font.BOLD, 12));
             } else {
@@ -177,6 +196,22 @@ public class MapPanel extends JPanel {
             
             // Draw City Name
             g2.drawString(city.getCityName(), p.x + 8, p.y + 4);
+        }
+
+        // 5. Draw highlighted places (Hospitals, etc.)
+        if (highlightedPlaces != null) {
+            for (NearbyPlacesFinder.PlaceDistance pd : highlightedPlaces) {
+                double rawX = (((pd.lon - minLon) / (maxLon - minLon)) * width);
+                double rawY = height - (((pd.lat - minLat) / (maxLat - minLat)) * height);
+                int finalX = (int)(rawX * scale + translateX);
+                int finalY = (int)(rawY * scale + translateY);
+                
+                g2.setColor(new Color(40, 167, 69)); // Success Green
+                g2.fillOval(finalX - 6, finalY - 6, 12, 12);
+                g2.setColor(Color.BLACK);
+                g2.setFont(new Font("SansSerif", Font.BOLD, 12));
+                g2.drawString(pd.placeName, finalX + 8, finalY + 4);
+            }
         }
     }
 

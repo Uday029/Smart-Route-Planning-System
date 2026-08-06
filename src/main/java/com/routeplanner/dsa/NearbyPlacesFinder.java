@@ -12,10 +12,14 @@ public class NearbyPlacesFinder {
     public static class PlaceDistance {
         public String placeName;
         public double distance;
+        public double lat;
+        public double lon;
 
-        public PlaceDistance(String placeName, double distance) {
+        public PlaceDistance(String placeName, double distance, double lat, double lon) {
             this.placeName = placeName;
             this.distance = distance;
+            this.lat = lat;
+            this.lon = lon;
         }
     }
 
@@ -43,7 +47,7 @@ public class NearbyPlacesFinder {
             double[] coords = entry.getValue();
             double dist = calculateDistance(currentLat, currentLon, coords[0], coords[1]);
             
-            maxHeap.offer(new PlaceDistance(entry.getKey(), dist));
+            maxHeap.offer(new PlaceDistance(entry.getKey(), dist, coords[0], coords[1]));
             
             if (maxHeap.size() > n) {
                 maxHeap.poll(); // Remove the farthest place

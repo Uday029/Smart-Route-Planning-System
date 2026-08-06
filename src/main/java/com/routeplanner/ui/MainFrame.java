@@ -28,6 +28,7 @@ public class MainFrame extends JFrame {
     private JComboBox<City> currentLocCombo;
     private JComboBox<String> placeTypeCombo;
     private JTextArea nearbyResultArea;
+    private MapPanel nearbyMapPanel;
     private Map<String, Map<String, double[]>> mockPlacesData;
 
     public MainFrame(Graph graph) {
@@ -137,7 +138,31 @@ public class MainFrame extends JFrame {
         nearbyResultArea.setEditable(false);
         nearbyResultArea.setFont(new Font("Monospaced", Font.PLAIN, 15));
         nearbyResultArea.setMargin(new Insets(10, 10, 10, 10));
-        panel.add(new JScrollPane(nearbyResultArea), BorderLayout.CENTER);
+
+        nearbyMapPanel = new MapPanel(graph);
+        JPanel mapContainer = new JPanel(new BorderLayout());
+        mapContainer.add(nearbyMapPanel, BorderLayout.CENTER);
+        mapContainer.setPreferredSize(new Dimension(400, 400));
+
+        JToolBar zoomBar = new JToolBar();
+        zoomBar.setFloatable(false);
+        JButton zoomInBtn = new JButton("+");
+        zoomInBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
+        JButton zoomOutBtn = new JButton("-");
+        zoomOutBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
+        
+        zoomInBtn.addActionListener(e -> nearbyMapPanel.zoomIn());
+        zoomOutBtn.addActionListener(e -> nearbyMapPanel.zoomOut());
+        
+        zoomBar.add(zoomOutBtn);
+        zoomBar.add(zoomInBtn);
+        mapContainer.add(zoomBar, BorderLayout.NORTH);
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
+                new JScrollPane(nearbyResultArea), mapContainer);
+        splitPane.setDividerLocation(350);
+
+        panel.add(splitPane, BorderLayout.CENTER);
         
         findPlacesBtn.addActionListener(e -> findNearbyPlaces());
         
@@ -162,10 +187,9 @@ public class MainFrame extends JFrame {
         cityPanel.add(new JLabel("")); cityPanel.add(addCityBtn);
         
         // Add Road Panel
-        JPanel roadPanel = new JPanel(new GridLayout(8, 2, 5, 5));
+        JPanel roadPanel = new JPanel(new GridLayout(7, 2, 5, 5));
         roadPanel.setBorder(BorderFactory.createTitledBorder("Add New Road"));
         
-        JTextField roadIdField = new JTextField();
         JComboBox<City> srcCityCombo = new JComboBox<>(graph.getCities().toArray(new City[0]));
         JComboBox<City> destCityCombo = new JComboBox<>(graph.getCities().toArray(new City[0]));
         JTextField distanceField = new JTextField();
@@ -174,7 +198,6 @@ public class MainFrame extends JFrame {
         JCheckBox isOneWayCheck = new JCheckBox("Is One Way?");
         JButton addRoadBtn = new JButton("Add Road");
         
-        roadPanel.add(new JLabel("Road ID:")); roadPanel.add(roadIdField);
         roadPanel.add(new JLabel("Source City:")); roadPanel.add(srcCityCombo);
         roadPanel.add(new JLabel("Destination City:")); roadPanel.add(destCityCombo);
         roadPanel.add(new JLabel("Distance (km):")); roadPanel.add(distanceField);
@@ -222,7 +245,7 @@ public class MainFrame extends JFrame {
         
         addRoadBtn.addActionListener(e -> {
             try {
-                int id = Integer.parseInt(roadIdField.getText());
+                int id = (int)(Math.random() * 100000); // Auto-generate Road ID
                 City src = (City) srcCityCombo.getSelectedItem();
                 City dest = (City) destCityCombo.getSelectedItem();
                 double dist = Double.parseDouble(distanceField.getText());
@@ -235,9 +258,9 @@ public class MainFrame extends JFrame {
                 Road newRoad = new Road(id, src.getCityId(), dest.getCityId(), dist, speed, type, isOneWay);
                 graph.addRoad(newRoad);
                 
-                adminLogArea.append("Success: Added Road from " + src.getCityName() + " to " + dest.getCityName() + "\n");
+                adminLogArea.append("Success: Added Road from " + src.getCityName() + " to " + dest.getCityName() + " (ID: " + id + ")\n");
                 
-                roadIdField.setText(""); distanceField.setText(""); speedLimitField.setText("");
+                distanceField.setText(""); speedLimitField.setText("");
             } catch (Exception ex) {
                 adminLogArea.append("Error adding road: Please check the inputs.\n");
             }
@@ -326,6 +349,7 @@ public class MainFrame extends JFrame {
         }
         
         nearbyResultArea.setText(sb.toString());
+        nearbyMapPanel.setHighlightedPlaces(nearest, src);
     }
 
     private void calculateRoute() {
