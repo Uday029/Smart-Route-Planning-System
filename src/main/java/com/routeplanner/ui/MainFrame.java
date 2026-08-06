@@ -42,9 +42,9 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("🗺️ Route Planner", createRoutePanel());
-        tabbedPane.addTab("🏥 Nearby & Emergency", createNearbyPanel());
-        tabbedPane.addTab("⚙️ Admin Panel", createAdminPanel());
+        tabbedPane.addTab("Route Planner", createRoutePanel());
+        tabbedPane.addTab("Nearby & Emergency", createNearbyPanel());
+        tabbedPane.addTab("Admin Panel", createAdminPanel());
         
         add(tabbedPane, BorderLayout.CENTER);
     }
@@ -172,7 +172,7 @@ public class MainFrame extends JFrame {
     private JPanel createAdminPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         
-        JPanel topPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        JPanel topPanel = new JPanel(new GridLayout(1, 3, 10, 10)); // 3 columns now
         
         // Add City Panel
         JPanel cityPanel = new JPanel(new GridLayout(4, 2, 5, 10));
@@ -214,8 +214,27 @@ public class MainFrame extends JFrame {
         roadPanel.add(new JLabel("")); roadPanel.add(isOneWayCheck);
         roadPanel.add(new JLabel("")); roadPanel.add(addRoadBtn);
         
+        // Add Place Panel
+        JPanel placePanel = new JPanel(new GridLayout(5, 2, 5, 10));
+        placePanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        
+        JLabel placeTitle = new JLabel("Add New Place");
+        placeTitle.setFont(placeTitle.getFont().deriveFont(Font.BOLD, 16f));
+        placePanel.add(placeTitle); placePanel.add(new JLabel("")); // Spacer
+        
+        JComboBox<String> adminPlaceTypeCombo = new JComboBox<>(new String[]{"Hospital", "Police Station", "Petrol Pump", "Restaurant", "ATM"});
+        JComboBox<City> adminPlaceCityCombo = new JComboBox<>(graph.getCities().toArray(new City[0]));
+        JTextField adminPlaceNameField = new JTextField();
+        JButton addPlaceBtn = new JButton("Add Place");
+        
+        placePanel.add(new JLabel("Place Type:")); placePanel.add(adminPlaceTypeCombo);
+        placePanel.add(new JLabel("City:")); placePanel.add(adminPlaceCityCombo);
+        placePanel.add(new JLabel("Place Name:")); placePanel.add(adminPlaceNameField);
+        placePanel.add(new JLabel("")); placePanel.add(addPlaceBtn);
+
         topPanel.add(cityPanel);
         topPanel.add(roadPanel);
+        topPanel.add(placePanel);
         panel.add(topPanel, BorderLayout.NORTH);
         
         JTextArea adminLogArea = new JTextArea();
@@ -274,66 +293,55 @@ public class MainFrame extends JFrame {
             }
         });
         
+        addPlaceBtn.addActionListener(e -> {
+            try {
+                String type = (String) adminPlaceTypeCombo.getSelectedItem();
+                City city = (City) adminPlaceCityCombo.getSelectedItem();
+                String name = adminPlaceNameField.getText();
+                
+                if(city == null || name.isEmpty() || type == null) return;
+                
+                // Assign coordinates near the selected city
+                double lat = city.getLatitude() + (Math.random() - 0.5) * 0.1;
+                double lon = city.getLongitude() + (Math.random() - 0.5) * 0.1;
+                
+                mockPlacesData.get(type).put(name, new double[]{lat, lon});
+                adminLogArea.append("Success: Added " + type + " - " + name + " near " + city.getCityName() + "\n");
+                
+                adminPlaceNameField.setText("");
+            } catch (Exception ex) {
+                adminLogArea.append("Error adding place: Please check the inputs.\n");
+            }
+        });
+        
         return panel;
     }
     
     private void initMockPlaces() {
         mockPlacesData = new HashMap<>();
+        String[] types = {"Hospital", "Police Station", "Petrol Pump", "Restaurant", "ATM"};
+        for (String type : types) {
+            mockPlacesData.put(type, new HashMap<>());
+        }
         
-        Map<String, double[]> hospitals = new HashMap<>();
-        // Near Delhi
-        hospitals.put("City Care Hospital (Delhi)", new double[]{28.71, 77.11});
-        hospitals.put("AIIMS (Delhi)", new double[]{28.56, 77.20});
-        // Near Jaipur
-        hospitals.put("SMS Hospital (Jaipur)", new double[]{26.90, 75.80});
-        hospitals.put("Fortis Escorts (Jaipur)", new double[]{26.85, 75.80});
-        // Near Ajmer
-        hospitals.put("JLN Hospital (Ajmer)", new double[]{26.45, 74.64});
-        // Near Udaipur
-        hospitals.put("Geetanjali Hospital (Udaipur)", new double[]{24.59, 73.72});
-        // Near Mumbai
-        hospitals.put("Apollo Hospital (Mumbai)", new double[]{19.08, 72.88});
-        hospitals.put("Lilavati Hospital (Mumbai)", new double[]{19.05, 72.82});
-        // Near Pune
-        hospitals.put("Ruby Hall Clinic (Pune)", new double[]{18.53, 73.87});
-        // Near Ahmedabad
-        hospitals.put("Zydus Hospital (Ahmedabad)", new double[]{23.04, 72.52});
-        // Near Surat
-        hospitals.put("Kiran Hospital (Surat)", new double[]{21.20, 72.84});
-        // Near Bengaluru
-        hospitals.put("Fortis Healthcare (Bengaluru)", new double[]{12.98, 77.60});
-        hospitals.put("Manipal Hospital (Bengaluru)", new double[]{12.95, 77.64});
-        // Near Hyderabad
-        hospitals.put("Yashoda Hospital (Hyderabad)", new double[]{17.42, 78.49});
-        // Near Chennai
-        hospitals.put("MIOT Hospital (Chennai)", new double[]{13.02, 80.18});
-        hospitals.put("Apollo Speciality (Chennai)", new double[]{13.06, 80.25});
-        // Near Kolkata
-        hospitals.put("AMRI Hospital (Kolkata)", new double[]{22.51, 88.36});
-        // Near Patna
-        hospitals.put("Ruban Hospital (Patna)", new double[]{25.61, 85.12});
-        // Near Lucknow
-        hospitals.put("Sahara Hospital (Lucknow)", new double[]{26.86, 81.01});
-        // Near Bhopal
-        hospitals.put("Bansal Hospital (Bhopal)", new double[]{23.21, 77.43});
-        // Near Nagpur
-        hospitals.put("Wockhardt Hospital (Nagpur)", new double[]{21.13, 79.06});
-        // Near Kochi
-        hospitals.put("Amrita Hospital (Kochi)", new double[]{10.02, 76.29});
-
-        mockPlacesData.put("Hospital", hospitals);
-        
-        Map<String, double[]> petrolPumps = new HashMap<>();
-        petrolPumps.put("IndianOil Petrol Pump (Jaipur)", new double[]{26.92, 75.79});
-        petrolPumps.put("Bharat Petroleum (Ahmedabad)", new double[]{23.03, 72.58});
-        petrolPumps.put("HP Petrol Pump (Delhi)", new double[]{28.72, 77.10});
-        petrolPumps.put("Shell Petrol Pump (Bengaluru)", new double[]{12.99, 77.62});
-        mockPlacesData.put("Petrol Pump", petrolPumps);
-        
-        // Add empty maps for others to avoid null ptr
-        mockPlacesData.put("Police Station", new HashMap<>());
-        mockPlacesData.put("Restaurant", new HashMap<>());
-        mockPlacesData.put("ATM", new HashMap<>());
+        if (graph != null && graph.getCities() != null) {
+            for (City city : graph.getCities()) {
+                String cName = city.getCityName();
+                double cLat = city.getLatitude();
+                double cLon = city.getLongitude();
+                
+                for (String type : types) {
+                    Map<String, double[]> places = mockPlacesData.get(type);
+                    for (int i = 1; i <= 3; i++) { // Generate 3 of each type per city
+                        String pName = cName + " " + type + " " + i;
+                        // Add random offset between -0.1 and +0.1 degrees (approx 10km radius)
+                        double pLat = cLat + (Math.random() - 0.5) * 0.2;
+                        double pLon = cLon + (Math.random() - 0.5) * 0.2;
+                        places.put(pName, new double[]{pLat, pLon});
+                    }
+                }
+            }
+        }
     }
 
     private void findNearbyPlaces() {
@@ -348,7 +356,13 @@ public class MainFrame extends JFrame {
         }
         
         List<NearbyPlacesFinder.PlaceDistance> nearest = NearbyPlacesFinder.findNearestPlaces(
-                src.getLatitude(), src.getLongitude(), places, 3);
+                src.getLatitude(), src.getLongitude(), places, 10, 50.0); // 50 km max radius
+                
+        if (nearest.isEmpty()) {
+            nearbyResultArea.setText("No " + type + " found within 50 km of " + src.getCityName() + ".");
+            nearbyMapPanel.setHighlightedPlaces(null, src);
+            return;
+        }
                 
         StringBuilder sb = new StringBuilder();
         sb.append("=== Nearest ").append(type).append("s to ").append(src.getCityName()).append(" ===\n\n");

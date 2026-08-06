@@ -35,9 +35,9 @@ public class NearbyPlacesFinder {
         return R * c; 
     }
 
-    // Find nearest N places using a Max-Heap (PriorityQueue)
+    // Find nearest N places using a Max-Heap (PriorityQueue) within a max radius
     public static List<PlaceDistance> findNearestPlaces(double currentLat, double currentLon, 
-                                                        Map<String, double[]> allPlaces, int n) {
+                                                        Map<String, double[]> allPlaces, int n, double maxRadiusKm) {
         
         PriorityQueue<PlaceDistance> maxHeap = new PriorityQueue<>(
             Comparator.comparingDouble((PlaceDistance p) -> p.distance).reversed()
@@ -47,10 +47,12 @@ public class NearbyPlacesFinder {
             double[] coords = entry.getValue();
             double dist = calculateDistance(currentLat, currentLon, coords[0], coords[1]);
             
-            maxHeap.offer(new PlaceDistance(entry.getKey(), dist, coords[0], coords[1]));
-            
-            if (maxHeap.size() > n) {
-                maxHeap.poll(); // Remove the farthest place
+            if (dist <= maxRadiusKm) {
+                maxHeap.offer(new PlaceDistance(entry.getKey(), dist, coords[0], coords[1]));
+                
+                if (maxHeap.size() > n) {
+                    maxHeap.poll(); // Remove the farthest place
+                }
             }
         }
 

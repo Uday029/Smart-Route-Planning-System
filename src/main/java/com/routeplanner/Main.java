@@ -5,17 +5,12 @@ import com.routeplanner.model.Road;
 import com.routeplanner.dsa.Graph;
 import com.routeplanner.ui.MainFrame;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import com.formdev.flatlaf.themes.FlatMacDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 
 public class Main {
     public static void main(String[] args) {
-        // Setup ultra-modern Mac Dark Look and Feel
-        UIManager.put("Button.arc", 999); // Pill-shaped buttons
-        UIManager.put("Component.arc", 10); // Rounded text fields
-        UIManager.put("ProgressBar.arc", 999);
-        UIManager.put("TabbedPane.showTabSeparators", true);
-        FlatMacDarkLaf.setup();
+        // Setup modern Look and Feel
+        FlatLightLaf.setup();
         
         System.out.println("=== Smart Route Planner starting GUI ===");
         
