@@ -112,6 +112,9 @@ public class MapPanel extends JPanel {
         this.currentRoute = route;
         this.highlightedPlaces = null;
         this.centerCity = null;
+        if (route != null) {
+            focusOnRouteBox(route);
+        }
         repaint();
     }
 
@@ -119,7 +122,57 @@ public class MapPanel extends JPanel {
         this.highlightedPlaces = places;
         this.centerCity = center;
         this.currentRoute = null;
+        if (center != null) {
+            focusOnCity(center);
+        }
         repaint();
+    }
+    
+    private void focusOnCity(City city) {
+        if (getWidth() == 0 || getHeight() == 0) return; 
+        
+        double targetScale = 6.0; 
+        
+        double rawX = (((city.getLongitude() - minLon) / (maxLon - minLon)) * getWidth());
+        double rawY = getHeight() - (((city.getLatitude() - minLat) / (maxLat - minLat)) * getHeight());
+        
+        scale = targetScale;
+        translateX = (getWidth() / 2.0) - (rawX * scale);
+        translateY = (getHeight() / 2.0) - (rawY * scale);
+    }
+    
+    private void focusOnRouteBox(RouteResult route) {
+        if (getWidth() == 0 || getHeight() == 0 || route == null || route.getPath() == null || route.getPath().isEmpty()) return;
+        
+        double rMinLat = 90.0, rMaxLat = -90.0, rMinLon = 180.0, rMaxLon = -180.0;
+        for (City c : route.getPath()) {
+            rMinLat = Math.min(rMinLat, c.getLatitude());
+            rMaxLat = Math.max(rMaxLat, c.getLatitude());
+            rMinLon = Math.min(rMinLon, c.getLongitude());
+            rMaxLon = Math.max(rMaxLon, c.getLongitude());
+        }
+        
+        double centerLat = (rMinLat + rMaxLat) / 2.0;
+        double centerLon = (rMinLon + rMaxLon) / 2.0;
+        
+        double rawCenterX = (((centerLon - minLon) / (maxLon - minLon)) * getWidth());
+        double rawCenterY = getHeight() - (((centerLat - minLat) / (maxLat - minLat)) * getHeight());
+        
+        double rawWidth = ((rMaxLon - rMinLon) / (maxLon - minLon)) * getWidth();
+        double rawHeight = ((rMaxLat - rMinLat) / (maxLat - minLat)) * getHeight();
+        
+        if (rawWidth < 1) rawWidth = 1;
+        if (rawHeight < 1) rawHeight = 1;
+        
+        double scaleX = (getWidth() * 0.8) / rawWidth;
+        double scaleY = (getHeight() * 0.8) / rawHeight;
+        
+        double targetScale = Math.min(scaleX, scaleY);
+        targetScale = Math.max(1.0, Math.min(targetScale, 15.0)); 
+        
+        scale = targetScale;
+        translateX = (getWidth() / 2.0) - (rawCenterX * scale);
+        translateY = (getHeight() / 2.0) - (rawCenterY * scale);
     }
 
     @Override
