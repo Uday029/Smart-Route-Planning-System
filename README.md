@@ -1,6 +1,6 @@
 # 🗺️ Smart Route Planning & Traffic Analysis System
 
-![Smart Route Planner Dashboard](screenshots/dashboard.png)
+![Smart Route Planner Dashboard](dashboard.png)
 
 A comprehensive, Java-based intelligent routing system that determines the optimal path between cities while factoring in dynamic real-world conditions like live traffic, weather alerts, and toll/fuel costs.
 
