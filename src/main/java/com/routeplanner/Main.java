@@ -5,9 +5,13 @@ import com.routeplanner.model.Road;
 import com.routeplanner.dsa.Graph;
 import com.routeplanner.ui.MainFrame;
 import javax.swing.SwingUtilities;
+import com.formdev.flatlaf.FlatLightLaf;
 
 public class Main {
     public static void main(String[] args) {
+        // Setup modern Look and Feel
+        FlatLightLaf.setup();
+        
         System.out.println("=== Smart Route Planner starting GUI ===");
         
         // 1. Initialize Graph

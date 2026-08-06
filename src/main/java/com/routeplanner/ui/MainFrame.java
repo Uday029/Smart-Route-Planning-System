@@ -175,8 +175,12 @@ public class MainFrame extends JFrame {
         JPanel topPanel = new JPanel(new GridLayout(1, 2, 10, 10));
         
         // Add City Panel
-        JPanel cityPanel = new JPanel(new GridLayout(3, 2, 5, 5));
-        cityPanel.setBorder(BorderFactory.createTitledBorder("Add New City"));
+        JPanel cityPanel = new JPanel(new GridLayout(4, 2, 5, 10));
+        cityPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        
+        JLabel cityTitle = new JLabel("Add New City");
+        cityTitle.setFont(cityTitle.getFont().deriveFont(Font.BOLD, 16f));
+        cityPanel.add(cityTitle); cityPanel.add(new JLabel("")); // Spacer
         
         JTextField cityNameField = new JTextField();
         JTextField cityStateField = new JTextField();
@@ -187,8 +191,12 @@ public class MainFrame extends JFrame {
         cityPanel.add(new JLabel("")); cityPanel.add(addCityBtn);
         
         // Add Road Panel
-        JPanel roadPanel = new JPanel(new GridLayout(7, 2, 5, 5));
-        roadPanel.setBorder(BorderFactory.createTitledBorder("Add New Road"));
+        JPanel roadPanel = new JPanel(new GridLayout(8, 2, 5, 10));
+        roadPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        
+        JLabel roadTitle = new JLabel("Add New Road");
+        roadTitle.setFont(roadTitle.getFont().deriveFont(Font.BOLD, 16f));
+        roadPanel.add(roadTitle); roadPanel.add(new JLabel("")); // Spacer
         
         JComboBox<City> srcCityCombo = new JComboBox<>(graph.getCities().toArray(new City[0]));
         JComboBox<City> destCityCombo = new JComboBox<>(graph.getCities().toArray(new City[0]));

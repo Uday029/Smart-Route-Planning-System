@@ -1,9 +1,15 @@
 #!/bin/bash
 set -e
 
+echo "Checking for UI dependencies..."
+mkdir -p lib
+if [ ! -f lib/flatlaf-3.2.1.jar ]; then
+  curl -sL "https://search.maven.org/remotecontent?filepath=com/formdev/flatlaf/flatlaf/3.2.1/flatlaf-3.2.1.jar" -o lib/flatlaf-3.2.1.jar
+fi
+
 echo "Compiling Java Files..."
 mkdir -p out
-javac -d out \
+javac -cp "lib/*" -d out \
   src/main/java/com/routeplanner/model/*.java \
   src/main/java/com/routeplanner/dsa/*.java \
   src/main/java/com/routeplanner/dao/*.java \
@@ -16,4 +22,4 @@ echo "Copying resources..."
 cp src/main/resources/db.properties out/ || true
 
 echo "Starting Application..."
-java -cp out com.routeplanner.Main
+java -cp "out:lib/*" com.routeplanner.Main
