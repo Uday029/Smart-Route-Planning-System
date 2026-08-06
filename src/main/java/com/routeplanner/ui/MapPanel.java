@@ -37,7 +37,7 @@ public class MapPanel extends JPanel {
 
     public MapPanel(Graph graph) {
         this.graph = graph;
-        setBackground(new Color(245, 245, 250)); // Light map background
+        setBackground(new Color(30, 30, 35)); // Ultra-modern dark background
 
         // Initialize starting zoom to show the full map
         scale = 1.0;
@@ -131,8 +131,8 @@ public class MapPanel extends JPanel {
 
         if (graph == null) return;
 
-        // 2. Draw all roads (edges) in light gray
-        g2.setColor(new Color(200, 200, 200));
+        // 2. Draw all roads (edges) in dark gray for dark mode
+        g2.setColor(new Color(80, 80, 80));
         g2.setStroke(new BasicStroke(1));
         
         for (City city : graph.getCities()) {
@@ -188,9 +188,9 @@ public class MapPanel extends JPanel {
                 g2.setColor(Color.BLACK);
                 g2.setFont(new Font("SansSerif", Font.BOLD, 12));
             } else {
-                g2.setColor(new Color(100, 150, 255)); // Blue dot
+                g2.setColor(new Color(80, 150, 255)); // Bright blue dot for dark mode
                 g2.fillOval(p.x - 4, p.y - 4, 8, 8);
-                g2.setColor(Color.DARK_GRAY);
+                g2.setColor(Color.WHITE);
                 g2.setFont(new Font("SansSerif", Font.PLAIN, 10));
             }
             

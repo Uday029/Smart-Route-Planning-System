@@ -42,9 +42,9 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Route Planner", createRoutePanel());
-        tabbedPane.addTab("Nearby & Emergency", createNearbyPanel());
-        tabbedPane.addTab("Admin Panel", createAdminPanel());
+        tabbedPane.addTab("🗺️ Route Planner", createRoutePanel());
+        tabbedPane.addTab("🏥 Nearby & Emergency", createNearbyPanel());
+        tabbedPane.addTab("⚙️ Admin Panel", createAdminPanel());
         
         add(tabbedPane, BorderLayout.CENTER);
     }
