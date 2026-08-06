@@ -255,17 +255,29 @@ public class MapPanel extends JPanel {
 
         // 5. Draw highlighted places (Hospitals, etc.)
         if (highlightedPlaces != null) {
+            int count = 1;
             for (NearbyPlacesFinder.PlaceDistance pd : highlightedPlaces) {
                 double rawX = (((pd.lon - minLon) / (maxLon - minLon)) * width);
                 double rawY = height - (((pd.lat - minLat) / (maxLat - minLat)) * height);
                 int finalX = (int)(rawX * scale + translateX);
                 int finalY = (int)(rawY * scale + translateY);
                 
+                // Draw larger circle for marker
                 g2.setColor(new Color(40, 167, 69)); // Success Green
-                g2.fillOval(finalX - 6, finalY - 6, 12, 12);
-                g2.setColor(Color.BLACK);
+                g2.fillOval(finalX - 10, finalY - 10, 20, 20);
+                
+                // Draw number inside circle
+                g2.setColor(Color.WHITE);
                 g2.setFont(new Font("SansSerif", Font.BOLD, 12));
-                g2.drawString(pd.placeName, finalX + 8, finalY + 4);
+                
+                FontMetrics fm = g2.getFontMetrics();
+                String text = String.valueOf(count);
+                int textWidth = fm.stringWidth(text);
+                int textHeight = fm.getAscent();
+                
+                g2.drawString(text, finalX - (textWidth / 2), finalY + (textHeight / 2) - 1);
+                
+                count++;
             }
         }
     }
