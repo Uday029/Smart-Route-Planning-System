@@ -232,9 +232,18 @@ public class MainFrame extends JFrame {
         placePanel.add(new JLabel("Place Name:")); placePanel.add(adminPlaceNameField);
         placePanel.add(new JLabel("")); placePanel.add(addPlaceBtn);
 
-        topPanel.add(cityPanel);
-        topPanel.add(roadPanel);
-        topPanel.add(placePanel);
+        JPanel cityWrapper = new JPanel(new BorderLayout());
+        cityWrapper.add(cityPanel, BorderLayout.NORTH);
+        
+        JPanel roadWrapper = new JPanel(new BorderLayout());
+        roadWrapper.add(roadPanel, BorderLayout.NORTH);
+        
+        JPanel placeWrapper = new JPanel(new BorderLayout());
+        placeWrapper.add(placePanel, BorderLayout.NORTH);
+
+        topPanel.add(cityWrapper);
+        topPanel.add(roadWrapper);
+        topPanel.add(placeWrapper);
         panel.add(topPanel, BorderLayout.NORTH);
         
         JTextArea adminLogArea = new JTextArea();

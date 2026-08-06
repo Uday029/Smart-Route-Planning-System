@@ -62,12 +62,14 @@ public class MapPanel extends JPanel {
             }
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
+                double rotation = e.getPreciseWheelRotation();
+                if (rotation == 0) return;
+
                 double oldScale = scale;
-                if (e.getWheelRotation() < 0) {
-                    scale *= 1.1; // zoom in
-                } else {
-                    scale /= 1.1; // zoom out
-                }
+                // Apply a smooth scale factor. Negative rotation = scroll up/pinch out (zoom in)
+                double factor = Math.pow(1.05, -rotation);
+                scale *= factor;
+                
                 scale = Math.max(1.0, Math.min(scale, 20.0));
                 
                 // Math for zoom-to-cursor
