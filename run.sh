@@ -4,7 +4,7 @@ set -e
 echo "Checking for UI dependencies..."
 mkdir -p lib
 if [ ! -f lib/flatlaf-3.2.1.jar ]; then
-  curl -sL "https://repo1.maven.org/maven2/com/formdev/flatlaf/flatlaf/3.2.1/flatlaf-3.2.1.jar" -o lib/flatlaf-3.2.1.jar
+  curl -sL "https://repo1.maven.org/maven2/com/formdev/flatlaf/3.2.1/flatlaf-3.2.1.jar" -o lib/flatlaf-3.2.1.jar
 fi
 
 echo "Compiling Java Files..."
