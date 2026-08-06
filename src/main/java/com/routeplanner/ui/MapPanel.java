@@ -262,20 +262,36 @@ public class MapPanel extends JPanel {
                 int finalX = (int)(rawX * scale + translateX);
                 int finalY = (int)(rawY * scale + translateY);
                 
-                // Draw larger circle for marker
+                // Draw normal marker dot
                 g2.setColor(new Color(40, 167, 69)); // Success Green
-                g2.fillOval(finalX - 10, finalY - 10, 20, 20);
+                g2.fillOval(finalX - 6, finalY - 6, 12, 12);
                 
-                // Draw number inside circle
-                g2.setColor(Color.WHITE);
+                // Draw place name with dynamic offset to prevent overlap
                 g2.setFont(new Font("SansSerif", Font.BOLD, 12));
-                
                 FontMetrics fm = g2.getFontMetrics();
-                String text = String.valueOf(count);
-                int textWidth = fm.stringWidth(text);
-                int textHeight = fm.getAscent();
+                int textWidth = fm.stringWidth(pd.placeName);
                 
-                g2.drawString(text, finalX - (textWidth / 2), finalY + (textHeight / 2) - 1);
+                int textX, textY;
+                if (count % 4 == 1) { // Top Right
+                    textX = finalX + 8;
+                    textY = finalY - 4;
+                } else if (count % 4 == 2) { // Bottom Right
+                    textX = finalX + 8;
+                    textY = finalY + 14;
+                } else if (count % 4 == 3) { // Bottom Left
+                    textX = finalX - textWidth - 8;
+                    textY = finalY + 14;
+                } else { // Top Left
+                    textX = finalX - textWidth - 8;
+                    textY = finalY - 4;
+                }
+                
+                // Draw a subtle background for the text to improve readability over roads
+                g2.setColor(new Color(255, 255, 255, 200));
+                g2.fillRect(textX - 2, textY - 10, textWidth + 4, 14);
+                
+                g2.setColor(Color.BLACK);
+                g2.drawString(pd.placeName, textX, textY);
                 
                 count++;
             }

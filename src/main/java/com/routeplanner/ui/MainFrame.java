@@ -375,10 +375,8 @@ public class MainFrame extends JFrame {
                 
         StringBuilder sb = new StringBuilder();
         sb.append("=== Nearest ").append(type).append("s to ").append(src.getCityName()).append(" ===\n\n");
-        int count = 1;
         for(NearbyPlacesFinder.PlaceDistance p : nearest) {
-            sb.append(count).append(". ").append(p.placeName).append(" (").append(String.format("%.2f", p.distance)).append(" km away)\n");
-            count++;
+            sb.append("- ").append(p.placeName).append(" (").append(String.format("%.2f", p.distance)).append(" km away)\n");
         }
         
         nearbyResultArea.setText(sb.toString());
